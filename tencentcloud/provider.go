@@ -143,6 +143,7 @@ func Provider() *schema.Provider {
 			"tencentcloud_cos_buckets":                 dataSourceTencentCloudCosBuckets(),
 			"tencentcloud_redis_zone_config":           dataSourceTencentRedisZoneConfig(),
 			"tencentcloud_redis_instances":             dataSourceTencentRedisInstances(),
+			"tencentcloud_vpc_instances":               dataSourceTencentCloudVpcInstances(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

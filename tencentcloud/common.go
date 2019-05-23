@@ -20,14 +20,16 @@ var logAtomaticId int64 = 0
 
 //get logid  for trace, return a new logid if ctx is nil
 func GetLogId(ctx context.Context) string {
-
+	if firstLogTime == "" {
+		firstLogTime = fmt.Sprintf("%x", time.Now().Unix())
+	}
 	if ctx != nil {
 		logId, ok := ctx.Value("logId").(string)
 		if ok {
 			return logId
 		}
 	}
-	return fmt.Sprintf("%s-%d", firstLogTime, atomic.AddInt64(&logAtomaticId, 1))
+	return fmt.Sprintf("guagua-%s-%d", firstLogTime, atomic.AddInt64(&logAtomaticId, 1))
 }
 
 //write data to file
