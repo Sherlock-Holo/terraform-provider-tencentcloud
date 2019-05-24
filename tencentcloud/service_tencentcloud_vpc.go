@@ -25,6 +25,7 @@ type VpcBasicInfo struct {
 type VpcSubnetBasicInfo struct {
 	vpcId            string
 	subnetId         string
+	routeTableId     string
 	name             string
 	cidr             string
 	isMulticast      bool
@@ -32,6 +33,27 @@ type VpcSubnetBasicInfo struct {
 	zone             string
 	availableIpCount int64
 	createTime       string
+}
+
+//route entry basic information
+type VpcRouteEntryBasicInfo struct {
+	routeEntryId    string
+	destinationCidr string
+	nextType        string
+	nextBub         string
+	description     string
+	entryType       string
+}
+
+//route table basic information
+type VpcRouteTableBasicInfo struct {
+	routetableId string
+	name         string
+	vpcId        string
+	isDefault    bool
+	subnetIds    []string
+	entryInfos   []VpcRouteEntryBasicInfo
+	createTime   string
 }
 
 type VpcService struct {
@@ -183,6 +205,18 @@ getMoreData:
 	goto getMoreData
 
 }
+func (me *VpcService) DescribeSubnet(ctx context.Context, subnetId string) (info VpcSubnetBasicInfo, has int, errRet error) {
+	infos, err := me.DescribeSubnets(ctx, subnetId, "", "", "")
+	if err != nil {
+		errRet = err
+		return
+	}
+	has = len(infos)
+	if has > 0 {
+		info = infos[0]
+	}
+	return
+}
 
 func (me *VpcService) DescribeSubnets(ctx context.Context, subnet_id, vpc_id, subnet_name, zone string) (infos []VpcSubnetBasicInfo, errRet error) {
 
@@ -254,6 +288,7 @@ getMoreData:
 		basicInfo.createTime = *item.CreatedTime
 		basicInfo.vpcId = *item.VpcId
 		basicInfo.subnetId = *item.SubnetId
+		basicInfo.routeTableId = *item.RouteTableId
 
 		basicInfo.name = *item.SubnetName
 		basicInfo.isDefault = *item.IsDefault
@@ -315,7 +350,7 @@ func (me *VpcService) DeleteVpc(ctx context.Context, vpcId string) (errRet error
 		}
 	}()
 	if vpcId == "" {
-		errRet = fmt.Errorf("DeleteVpc can not delete emputy vpc_id.")
+		errRet = fmt.Errorf("DeleteVpc can not delete empty vpc_id.")
 		return
 	}
 
@@ -328,5 +363,216 @@ func (me *VpcService) DeleteVpc(ctx context.Context, vpcId string) (errRet error
 	}
 	errRet = err
 	return
+
+}
+
+func (me *VpcService) CreateSubnet(ctx context.Context, vpcId, name, cidr, zone string) (subnetId string, errRet error) {
+	logId := GetLogId(ctx)
+	request := vpc.NewCreateSubnetRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	if vpcId == "" {
+		errRet = fmt.Errorf("CreateSubnet can not invoke by empty vpc_id.")
+		return
+	}
+	request.VpcId = &vpcId
+	request.SubnetName = &name
+	request.CidrBlock = &cidr
+	request.Zone = &zone
+
+	response, err := me.client.UseVpcClient().CreateSubnet(request)
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+
+		subnetId = *response.Response.Subnet.SubnetId
+	}
+	return
+}
+
+func (me *VpcService) ModifySubnetAttribute(ctx context.Context, subnetId, name string, isMulticast bool) (errRet error) {
+	logId := GetLogId(ctx)
+	request := vpc.NewModifySubnetAttributeRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	var enableMulticast = map[bool]string{true: "true", false: "false"}[isMulticast]
+
+	request.SubnetId = &subnetId
+	request.SubnetName = &name
+	request.EnableBroadcast = &enableMulticast
+
+	response, err := me.client.UseVpcClient().ModifySubnetAttribute(request)
+
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+	}
+	return
+}
+
+func (me *VpcService) DeleteSubnet(ctx context.Context, subnetId string) (errRet error) {
+
+	logId := GetLogId(ctx)
+	request := vpc.NewDeleteSubnetRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+	request.SubnetId = &subnetId
+	response, err := me.client.UseVpcClient().DeleteSubnet(request)
+
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+	}
+	return
+
+}
+
+func (me *VpcService) ReplaceRouteTableAssociation(ctx context.Context, subnetId string, routeTableId string) (errRet error) {
+	logId := GetLogId(ctx)
+	request := vpc.NewReplaceRouteTableAssociationRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+	request.SubnetId = &subnetId
+	request.RouteTableId = &routeTableId
+
+	response, err := me.client.UseVpcClient().ReplaceRouteTableAssociation(request)
+
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+	}
+	return
+}
+
+func (me *VpcService) IsRouteTableInVpc(ctx context.Context, routeTableId, vpcId string) (info VpcRouteTableBasicInfo, has int, errRet error) {
+
+	infos, err := me.DescribeRouteTables(ctx, routeTableId, "", vpcId)
+	if err != nil {
+		errRet = err
+		return
+	}
+	has = len(infos)
+	if has > 0 {
+		info = infos[0]
+	}
+	return
+
+}
+
+func (me *VpcService) DescribeRouteTables(ctx context.Context, routeTableId, routeTableName, vpcId string) (infos []VpcRouteTableBasicInfo, errRet error) {
+
+	logId := GetLogId(ctx)
+	request := vpc.NewDescribeRouteTablesRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	infos = make([]VpcRouteTableBasicInfo, 0, 100)
+	var offset = 0
+	var limit = 100
+	var total = -1
+	var hasTableMap = map[string]bool{}
+
+	var filters []*vpc.Filter
+	if routeTableId != "" {
+		filters = me.fillFilter(filters, "route-table-id", routeTableId)
+	}
+	if vpcId != "" {
+		filters = me.fillFilter(filters, "vpc-id", vpcId)
+	}
+	if routeTableName != "" {
+		filters = me.fillFilter(filters, "route-table-name", routeTableName)
+	}
+	if len(filters) > 0 {
+		request.Filters = filters
+	}
+
+getMoreData:
+	if total >= 0 {
+		if offset >= total {
+			return
+		}
+	}
+	var strLimit = fmt.Sprintf("%d", limit)
+	request.Limit = &strLimit
+
+	var strOffset = fmt.Sprintf("%d", offset)
+	request.Offset = &strOffset
+	response, err := me.client.UseVpcClient().DescribeRouteTables(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+		logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+
+	if total < 0 {
+		total = int(*response.Response.TotalCount)
+	}
+
+	if len(response.Response.RouteTableSet) > 0 {
+		offset += limit
+	} else {
+		//get empty Vpcinfo,we're done
+		return
+	}
+	for _, item := range response.Response.RouteTableSet {
+		var basicInfo VpcRouteTableBasicInfo
+		basicInfo.createTime = *item.CreatedTime
+		basicInfo.isDefault = *item.Main
+		basicInfo.name = *item.RouteTableName
+		basicInfo.routetableId = *item.RouteTableId
+		basicInfo.vpcId = *item.VpcId
+
+		basicInfo.subnetIds = make([]string, 0, len(item.AssociationSet))
+		for _, v := range item.AssociationSet {
+			basicInfo.subnetIds = append(basicInfo.subnetIds, *v.SubnetId)
+		}
+
+		basicInfo.entryInfos = make([]VpcRouteEntryBasicInfo, 0, len(item.RouteSet))
+
+		for _, v := range item.RouteSet {
+			var entry VpcRouteEntryBasicInfo
+			entry.destinationCidr = *v.DestinationCidrBlock
+			entry.nextBub = *v.GatewayId
+			entry.nextType = *v.GatewayType
+			entry.description = *v.RouteDescription
+			entry.routeEntryId = fmt.Sprintf("%s_%d", basicInfo.routetableId, *v.RouteId)
+			entry.entryType = *v.RouteType
+			basicInfo.entryInfos = append(basicInfo.entryInfos, entry)
+		}
+		if hasTableMap[basicInfo.routetableId] {
+			errRet = fmt.Errorf("get repeated routetable_id[%s] when doing DescribeRouteTables", basicInfo.routetableId)
+			return
+		}
+		hasTableMap[basicInfo.routetableId] = true
+		infos = append(infos, basicInfo)
+	}
+	goto getMoreData
 
 }

@@ -144,6 +144,7 @@ func Provider() *schema.Provider {
 			"tencentcloud_redis_zone_config":           dataSourceTencentRedisZoneConfig(),
 			"tencentcloud_redis_instances":             dataSourceTencentRedisInstances(),
 			"tencentcloud_vpc_instances":               dataSourceTencentCloudVpcInstances(),
+			"tencentcloud_vpc_subnets":                 dataSourceTencentCloudVpcSubnets(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -164,7 +165,7 @@ func Provider() *schema.Provider {
 			"tencentcloud_route_table":                resourceTencentCloudRouteTable(),
 			"tencentcloud_security_group":             resourceTencentCloudSecurityGroup(),
 			"tencentcloud_security_group_rule":        resourceTencentCloudSecurityGroupRule(),
-			"tencentcloud_subnet":                     resourceTencentCloudSubnet(),
+			"tencentcloud_subnet":                     resourceTencentCloudVpcSubnet(),
 			"tencentcloud_vpc":                        resourceTencentCloudVpcInstance(),
 			"tencentcloud_mysql_backup_policy":        resourceTencentCloudMysqlBackupPolicy(),
 			"tencentcloud_mysql_account":              resourceTencentCloudMysqlAccount(),
