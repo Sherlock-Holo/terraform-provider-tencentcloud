@@ -87,23 +87,16 @@ func (me *VpcService) CreateVpc(ctx context.Context, name, cidr string,
 	return
 }
 
-func (me *VpcService) DescribeVpc(ctx context.Context, vpcId string) (info VpcBasicInfo, has bool, errRet error) {
-	has = true
+func (me *VpcService) DescribeVpc(ctx context.Context, vpcId string) (info VpcBasicInfo, has int, errRet error) {
 	infos, err := me.DescribeVpcs(ctx, vpcId, "")
 	if err != nil {
 		errRet = err
 		return
 	}
-	if len(infos) == 0 {
-		has = false
-		return
+	has = len(infos)
+	if has > 0 {
+		info = infos[0]
 	}
-
-	if len(infos) != 1 {
-		err = fmt.Errorf("api DescribeVpcs one vpc_id get %d vpcinfo", len(infos))
-		return
-	}
-	info = infos[0]
 	return
 }
 
@@ -181,7 +174,7 @@ getMoreData:
 		basicInfo.vpcId = *item.VpcId
 
 		if hasVpc[basicInfo.vpcId] {
-			errRet = fmt.Errorf("get repeated vpc_id[%d] when doing DescribeVpcs", basicInfo.vpcId)
+			errRet = fmt.Errorf("get repeated vpc_id[%s] when doing DescribeVpcs", basicInfo.vpcId)
 			return
 		}
 		hasVpc[basicInfo.vpcId] = true
@@ -270,7 +263,7 @@ getMoreData:
 		basicInfo.availableIpCount = int64(*item.AvailableIpAddressCount)
 
 		if hasSubnet[basicInfo.subnetId] {
-			errRet = fmt.Errorf("get repeated subnetId[%d] when doing DescribeSubnets", basicInfo.subnetId)
+			errRet = fmt.Errorf("get repeated subnetId[%s] when doing DescribeSubnets", basicInfo.subnetId)
 			return
 		}
 		hasSubnet[basicInfo.subnetId] = true
@@ -281,7 +274,7 @@ getMoreData:
 
 }
 
-func (me *VpcService) ModifyVpcAttribute(ctx context.Context, name string, isMulticast bool, dnsServers []string) (errRet error) {
+func (me *VpcService) ModifyVpcAttribute(ctx context.Context, vpcId, name string, isMulticast bool, dnsServers []string) (errRet error) {
 	logId := GetLogId(ctx)
 	request := vpc.NewModifyVpcAttributeRequest()
 	defer func() {
@@ -290,7 +283,10 @@ func (me *VpcService) ModifyVpcAttribute(ctx context.Context, name string, isMul
 				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
 		}
 	}()
+
+	request.VpcId = &vpcId
 	request.VpcName = &name
+
 	if len(dnsServers) > 0 {
 		request.DnsServers = make([]*string, 0, len(dnsServers))
 		for index, _ := range dnsServers {
