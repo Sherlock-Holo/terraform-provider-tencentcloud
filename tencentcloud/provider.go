@@ -145,6 +145,7 @@ func Provider() *schema.Provider {
 			"tencentcloud_redis_instances":             dataSourceTencentRedisInstances(),
 			"tencentcloud_vpc_instances":               dataSourceTencentCloudVpcInstances(),
 			"tencentcloud_vpc_subnets":                 dataSourceTencentCloudVpcSubnets(),
+			"tencentcloud_vpc_routetables":             dataSourceTencentCloudVpcRoutetables(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
