@@ -94,9 +94,8 @@ func resourceTencentCloudVpcInstanceCreate(d *schema.ResourceData, meta interfac
 		}
 
 	}
-	if temp, ok := d.GetOk("is_multicast"); ok {
-		isMulticast = temp.(bool)
-	}
+
+	isMulticast = d.Get("is_multicast").(bool)
 
 	vpcId, _, err := service.CreateVpc(ctx, name, cidrBlock, isMulticast, dnsServers)
 	if err != nil {

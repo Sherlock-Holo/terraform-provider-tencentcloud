@@ -100,9 +100,9 @@ func resourceTencentCloudVpcSubnetCreate(d *schema.ResourceData, meta interface{
 	if temp, ok := d.GetOk("cidr_block"); ok {
 		cidrBlock = temp.(string)
 	}
-	if temp, ok := d.GetOk("is_multicast"); ok {
-		isMulticast = temp.(bool)
-	}
+
+	isMulticast = d.Get("is_multicast").(bool)
+
 	if temp, ok := d.GetOk("routetable_id"); ok {
 		routeTableId = temp.(string)
 		if len(routeTableId) < 1 {
