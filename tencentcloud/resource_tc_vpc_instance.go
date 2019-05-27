@@ -61,7 +61,7 @@ func resourceTencentCloudVpcInstanceCreate(d *schema.ResourceData, meta interfac
 
 	logId := GetLogId(nil)
 
-	defer LogElapsed(logId + "data_source.tencentcloud_vpc.create")()
+	defer LogElapsed(logId + "resource.tencentcloud_vpc.create")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 
@@ -94,7 +94,6 @@ func resourceTencentCloudVpcInstanceCreate(d *schema.ResourceData, meta interfac
 		}
 
 	}
-
 	isMulticast = d.Get("is_multicast").(bool)
 
 	vpcId, _, err := service.CreateVpc(ctx, name, cidrBlock, isMulticast, dnsServers)
@@ -109,7 +108,7 @@ func resourceTencentCloudVpcInstanceRead(d *schema.ResourceData, meta interface{
 
 	logId := GetLogId(nil)
 
-	defer LogElapsed(logId + "data_source.tencentcloud_vpc.read")()
+	defer LogElapsed(logId + "resource.tencentcloud_vpc.read")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 
@@ -141,7 +140,7 @@ func resourceTencentCloudVpcInstanceRead(d *schema.ResourceData, meta interface{
 func resourceTencentCloudVpcInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	logId := GetLogId(nil)
 
-	defer LogElapsed(logId + "data_source.tencentcloud_vpc.update")()
+	defer LogElapsed(logId + "resource.tencentcloud_vpc.update")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 
@@ -197,7 +196,7 @@ func resourceTencentCloudVpcInstanceDelete(d *schema.ResourceData, meta interfac
 
 	logId := GetLogId(nil)
 
-	defer LogElapsed(logId + "data_source.tencentcloud_vpc.delete")()
+	defer LogElapsed(logId + "resource.tencentcloud_vpc.delete")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 

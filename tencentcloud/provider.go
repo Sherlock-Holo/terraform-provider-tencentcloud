@@ -162,7 +162,7 @@ func Provider() *schema.Provider {
 			"tencentcloud_lb":                         resourceTencentCloudLB(),
 			"tencentcloud_nat_gateway":                resourceTencentCloudNatGateway(),
 			"tencentcloud_route_entry":                resourceTencentCloudRouteEntry(),
-			"tencentcloud_route_table":                resourceTencentCloudRouteTable(),
+			"tencentcloud_route_table":                resourceTencentCloudVpcRoutetable(),
 			"tencentcloud_security_group":             resourceTencentCloudSecurityGroup(),
 			"tencentcloud_security_group_rule":        resourceTencentCloudSecurityGroupRule(),
 			"tencentcloud_subnet":                     resourceTencentCloudVpcSubnet(),

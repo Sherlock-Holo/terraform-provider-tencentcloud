@@ -37,7 +37,7 @@ type VpcSubnetBasicInfo struct {
 
 //route entry basic information
 type VpcRouteEntryBasicInfo struct {
-	routeEntryId    string
+	routeEntryId    int64
 	destinationCidr string
 	nextType        string
 	nextBub         string
@@ -481,7 +481,23 @@ func (me *VpcService) IsRouteTableInVpc(ctx context.Context, routeTableId, vpcId
 
 }
 
-func (me *VpcService) DescribeRouteTables(ctx context.Context, routeTableId, routeTableName, vpcId string) (infos []VpcRouteTableBasicInfo, errRet error) {
+func (me *VpcService) DescribeRouteTable(ctx context.Context, routetableId string) (info VpcRouteTableBasicInfo, has int, errRet error) {
+
+	infos, err := me.DescribeRouteTables(ctx, routetableId, "", "")
+	if err != nil {
+		errRet = err
+		return
+	}
+
+	has = len(infos)
+
+	if has == 0 {
+		return
+	}
+	info = infos[0]
+	return
+}
+func (me *VpcService) DescribeRouteTables(ctx context.Context, routetableId, routeTableName, vpcId string) (infos []VpcRouteTableBasicInfo, errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewDescribeRouteTablesRequest()
@@ -499,8 +515,8 @@ func (me *VpcService) DescribeRouteTables(ctx context.Context, routeTableId, rou
 	var hasTableMap = map[string]bool{}
 
 	var filters []*vpc.Filter
-	if routeTableId != "" {
-		filters = me.fillFilter(filters, "route-table-id", routeTableId)
+	if routetableId != "" {
+		filters = me.fillFilter(filters, "route-table-id", routetableId)
 	}
 	if vpcId != "" {
 		filters = me.fillFilter(filters, "vpc-id", vpcId)
@@ -562,7 +578,7 @@ getMoreData:
 			entry.nextBub = *v.GatewayId
 			entry.nextType = *v.GatewayType
 			entry.description = *v.RouteDescription
-			entry.routeEntryId = fmt.Sprintf("%s_%d", basicInfo.routetableId, *v.RouteId)
+			entry.routeEntryId = int64(*v.RouteId)
 			entry.entryType = *v.RouteType
 			basicInfo.entryInfos = append(basicInfo.entryInfos, entry)
 		}
@@ -574,5 +590,88 @@ getMoreData:
 		infos = append(infos, basicInfo)
 	}
 	goto getMoreData
+
+}
+
+func (me *VpcService) CreateRouteTable(ctx context.Context, name, vpcId string) (routetableId string, errRet error) {
+
+	logId := GetLogId(ctx)
+	request := vpc.NewCreateRouteTableRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	if vpcId == "" {
+		errRet = fmt.Errorf("CreateRouteTable can not invoke by empty vpc_id.")
+		return
+	}
+	request.VpcId = &vpcId
+	request.RouteTableName = &name
+
+	response, err := me.client.UseVpcClient().CreateRouteTable(request)
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+
+		routetableId = *response.Response.RouteTable.RouteTableId
+	}
+	return
+}
+
+func (me *VpcService) DeleteRouteTable(ctx context.Context, routetableId string) (errRet error) {
+
+	logId := GetLogId(ctx)
+	request := vpc.NewDeleteRouteTableRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	if routetableId == "" {
+		errRet = fmt.Errorf("DeleteRouteTable can not invoke by empty routetableId.")
+		return
+	}
+	request.RouteTableId = &routetableId
+	response, err := me.client.UseVpcClient().DeleteRouteTable(request)
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+	}
+
+	return
+}
+
+func (me *VpcService) ModifyRouteTableAttribute(ctx context.Context, routetableId string, name string) (errRet error) {
+
+	logId := GetLogId(ctx)
+	request := vpc.NewModifyRouteTableAttributeRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	if routetableId == "" {
+		errRet = fmt.Errorf("ModifyRouteTableAttribute can not invoke by empty routetableId.")
+		return
+	}
+	request.RouteTableId = &routetableId
+	request.RouteTableName = &name
+	response, err := me.client.UseVpcClient().ModifyRouteTableAttribute(request)
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+	}
+
+	return
 
 }

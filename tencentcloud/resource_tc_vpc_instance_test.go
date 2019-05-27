@@ -73,22 +73,6 @@ func TestAccTencentCloudVpc_update(t *testing.T) {
 	})
 }
 
-const testAccVpcConfig = `
-resource "tencentcloud_vpc" "foo" {
-    name = "ci-temp-test"
-    cidr_block = "10.0.0.0/16"
-}
-`
-
-const testAccVpcConfigUpdate = `
-resource "tencentcloud_vpc" "foo" {
-    name = "ci-temp-test-updated"
-    cidr_block = "10.0.0.0/16"
-	dns_servers=["119.29.29.29"]
-	is_multicast=false
-}
-`
-
 func testAccCheckVpcExists(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		logId := GetLogId(nil)
@@ -108,7 +92,7 @@ func testAccCheckVpcExists(r string) resource.TestCheckFunc {
 			return nil
 		}
 
-		return fmt.Errorf("redis not exists.")
+		return fmt.Errorf("vpc not exists.")
 	}
 }
 
@@ -129,7 +113,23 @@ func testAccCheckVpcDestroy(s *terraform.State) error {
 		if has == 0 {
 			return nil
 		}
-		return fmt.Errorf("redis not delete ok")
+		return fmt.Errorf("vpc not delete ok")
 	}
 	return nil
 }
+
+const testAccVpcConfig = `
+resource "tencentcloud_vpc" "foo" {
+    name = "ci-temp-test"
+    cidr_block = "10.0.0.0/16"
+}
+`
+
+const testAccVpcConfigUpdate = `
+resource "tencentcloud_vpc" "foo" {
+    name = "ci-temp-test-updated"
+    cidr_block = "10.0.0.0/16"
+	dns_servers=["119.29.29.29"]
+	is_multicast=false
+}
+`
