@@ -706,7 +706,7 @@ func (me *VpcService) GetRouteId(ctx context.Context,
 
 }
 
-func (me *VpcService) DeleteRoutes(ctx context.Context, routetableId, destinationCidrBlock, nextType, nextHub string) (errRet error) {
+func (me *VpcService) DeleteRoutes(ctx context.Context, routetableId string, entryId uint64) (errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewDeleteRoutesRequest()
@@ -724,9 +724,7 @@ func (me *VpcService) DeleteRoutes(ctx context.Context, routetableId, destinatio
 
 	request.RouteTableId = &routetableId
 	var route vpc.Route
-	route.DestinationCidrBlock = &destinationCidrBlock
-	route.GatewayType = &nextType
-	route.GatewayId = &nextHub
+	route.RouteId = &entryId
 	request.Routes = []*vpc.Route{&route}
 	response, err := me.client.UseVpcClient().DeleteRoutes(request)
 	errRet = err

@@ -3,7 +3,7 @@ package tencentcloud
 import (
 	"context"
 	"fmt"
-	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -16,22 +16,12 @@ func resourceTencentCloudVpcRouteEntry() *schema.Resource {
 		Delete: resourceTencentCloudVpcRouteEntryDelete,
 
 		Schema: map[string]*schema.Schema{
-			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"route_table_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"cidr_block": {
+			"destination_cidr_block": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -48,6 +38,11 @@ func resourceTencentCloudVpcRouteEntry() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -62,27 +57,33 @@ func resourceTencentCloudVpcRouteEntryCreate(d *schema.ResourceData, meta interf
 	service := VpcService{client: meta.(*TencentCloudClient).apiV3Conn}
 
 	var (
-		vpcId                = d.Get("vpc_id").(string)
-		description          = d.Get("description").(string)
-		routetableId         = d.Get("route_table_id").(string)
-		destinationCidrBlock = d.Get("cidr_block").(string)
-		nextType             = d.Get("next_type").(string)
-		nextHub              = d.Get("next_hub").(string)
+		description          = ""
+		routetableId         = ""
+		destinationCidrBlock = ""
+		nextType             = ""
+		nextHub              = ""
 	)
+
+	if temp, ok := d.GetOk("description"); ok == true {
+		description = temp.(string)
+	}
+	if temp, ok := d.GetOk("route_table_id"); ok == true {
+		routetableId = temp.(string)
+	}
+	if temp, ok := d.GetOk("destination_cidr_block"); ok == true {
+		destinationCidrBlock = temp.(string)
+	}
+	if temp, ok := d.GetOk("next_type"); ok == true {
+		nextType = temp.(string)
+	}
+	if temp, ok := d.GetOk("next_hub"); ok == true {
+		nextHub = temp.(string)
+	}
 
 	if routetableId == "" || destinationCidrBlock == "" || nextType == "" || nextHub == "" {
 		return fmt.Errorf("some needed fields is empty string")
 	}
 
-	_, has, err := service.IsRouteTableInVpc(ctx, routetableId, vpcId)
-	if err != nil {
-		return err
-	}
-	if has != 1 {
-		err = fmt.Errorf("error,routetable [%s]  not found in vpc [%s]", routetableId, vpcId)
-		log.Printf("[CRITAL]%s %s", logId, err.Error())
-		return err
-	}
 	entryId, err := service.CreateRoutes(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
 
 	if err != nil {
@@ -128,7 +129,7 @@ func resourceTencentCloudVpcRouteEntryRead(d *schema.ResourceData, meta interfac
 		if fmt.Sprintf("%d", v.routeEntryId) == items[0] {
 			d.Set("description", v.description)
 			d.Set("route_table_id", v.routeEntryId)
-			d.Set("cidr_block", v.destinationCidr)
+			d.Set("destination_cidr_block", v.destinationCidr)
 			d.Set("next_type", v.nextType)
 			d.Set("next_hub", v.nextBub)
 			return nil
@@ -148,12 +149,16 @@ func resourceTencentCloudVpcRouteEntryDelete(d *schema.ResourceData, meta interf
 
 	service := VpcService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-	var (
-		routetableId         = d.Get("route_table_id").(string)
-		destinationCidrBlock = d.Get("cidr_block").(string)
-		nextType             = d.Get("next_type").(string)
-		nextHub              = d.Get("next_hub").(string)
-	)
+	items := strings.Split(d.Id(), ".")
 
-	return service.DeleteRoutes(ctx, routetableId, destinationCidrBlock, nextType, nextHub)
+	if len(items) != 2 {
+		return fmt.Errorf("entry id be destroyed, we can not get route table id")
+	}
+	routetableId := items[1]
+
+	entryId, err := strconv.ParseUint(items[0], 10, 64)
+	if err != nil {
+		return fmt.Errorf("entry id be destroyed, we can not get route entry id")
+	}
+	return service.DeleteRoutes(ctx, routetableId, entryId)
 }
