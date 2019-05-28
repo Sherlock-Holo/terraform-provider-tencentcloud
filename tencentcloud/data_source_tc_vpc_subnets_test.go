@@ -26,7 +26,7 @@ func TestAccDataSourceTencentCloudVpcSubnets_basic(t *testing.T) {
 
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.id_instances", "instance_list.0.vpc_id"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.id_instances", "instance_list.0.subnet_id"),
-					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.id_instances", "instance_list.0.routetable_id"),
+					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.id_instances", "instance_list.0.route_table_id"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.id_instances", "instance_list.0.is_default"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.id_instances", "instance_list.0.available_ip_count"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.id_instances", "instance_list.0.create_time"),
@@ -40,7 +40,7 @@ func TestAccDataSourceTencentCloudVpcSubnets_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.is_multicast"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.vpc_id"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.subnet_id"),
-					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.routetable_id"),
+					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.route_table_id"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.is_default"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.available_ip_count"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_subnets.name_instances", "instance_list.0.create_time"),

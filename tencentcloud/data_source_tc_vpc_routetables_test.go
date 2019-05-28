@@ -21,7 +21,7 @@ func TestAccDataSourceTencentCloudVpcSubnets_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.name", "ci-temp-test-rt"),
 
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.vpc_id"),
-					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.routetable_id"),
+					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.route_table_id"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.is_default"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.subnet_ids.#"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.route_entry_infos.#"),
@@ -32,7 +32,7 @@ func TestAccDataSourceTencentCloudVpcSubnets_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.name_instances", "instance_list.#"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.name"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.vpc_id"),
-					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.routetable_id"),
+					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.route_table_id"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.is_default"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.subnet_ids.#"),
 					resource.TestCheckResourceAttrSet("data.tencentcloud_vpc_routetables.id_instances", "instance_list.0.route_entry_infos.#"),
@@ -59,7 +59,7 @@ resource "tencentcloud_route_table" "routetable" {
 }
 
 data "tencentcloud_vpc_routetables" "id_instances" {
-	routetable_id="${tencentcloud_route_table.routetable.id}"
+	route_table_id="${tencentcloud_route_table.routetable.id}"
 }
 data "tencentcloud_vpc_routetables" "name_instances" {
 	name="${tencentcloud_route_table.routetable.name}"

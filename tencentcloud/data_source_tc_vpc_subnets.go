@@ -62,7 +62,7 @@ func dataSourceTencentCloudVpcSubnets() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						"routetable_id": {
+						"route_table_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -125,7 +125,7 @@ func dataSourceTencentCloudVpcSubnetsRead(d *schema.ResourceData, meta interface
 		infoMap["cidr_block"] = item.cidr
 		infoMap["is_default"] = item.isDefault
 		infoMap["is_multicast"] = item.isMulticast
-		infoMap["routetable_id"] = item.routeTableId
+		infoMap["route_table_id"] = item.routeTableId
 		infoMap["available_ip_count"] = item.availableIpCount
 		infoMap["create_time"] = item.createTime
 

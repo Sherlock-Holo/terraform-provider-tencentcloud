@@ -45,7 +45,7 @@ func resourceTencentCloudVpcSubnet() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-			"routetable_id": {
+			"route_table_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -103,10 +103,10 @@ func resourceTencentCloudVpcSubnetCreate(d *schema.ResourceData, meta interface{
 
 	isMulticast = d.Get("is_multicast").(bool)
 
-	if temp, ok := d.GetOk("routetable_id"); ok {
+	if temp, ok := d.GetOk("route_table_id"); ok {
 		routeTableId = temp.(string)
 		if len(routeTableId) < 1 {
-			return fmt.Errorf("routetable_id should be not empty string")
+			return fmt.Errorf("route_table_id should be not empty string")
 		}
 	}
 
@@ -171,7 +171,7 @@ func resourceTencentCloudVpcSubnetRead(d *schema.ResourceData, meta interface{})
 	d.Set("name", info.name)
 	d.Set("cidr_block", info.cidr)
 	d.Set("is_multicast", info.isMulticast)
-	d.Set("routetable_id", info.routeTableId)
+	d.Set("route_table_id", info.routeTableId)
 	d.Set("is_default", info.isDefault)
 	d.Set("available_ip_count", info.availableIpCount)
 	d.Set("create_time", info.createTime)
@@ -213,10 +213,10 @@ func resourceTencentCloudVpcSubnetUpdate(d *schema.ResourceData, meta interface{
 	d.SetPartial("name")
 	d.SetPartial("is_multicast")
 
-	if d.HasChange("routetable_id") {
-		routeTableId := d.Get("routetable_id").(string)
+	if d.HasChange("route_table_id") {
+		routeTableId := d.Get("route_table_id").(string)
 		if len(routeTableId) < 1 {
-			return fmt.Errorf("routetable_id should be not empty string")
+			return fmt.Errorf("route_table_id should be not empty string")
 		}
 
 		_, has, err := service.IsRouteTableInVpc(ctx, routeTableId, d.Get("vpc_id").(string))
@@ -232,7 +232,7 @@ func resourceTencentCloudVpcSubnetUpdate(d *schema.ResourceData, meta interface{
 		if err := service.ReplaceRouteTableAssociation(ctx, d.Id(), routeTableId); err != nil {
 			return err
 		}
-		d.SetPartial("routetable_id")
+		d.SetPartial("route_table_id")
 	}
 
 	return resourceTencentCloudVpcSubnetRead(d, meta)

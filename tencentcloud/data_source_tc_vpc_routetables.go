@@ -13,7 +13,7 @@ func dataSourceTencentCloudVpcRoutetables() *schema.Resource {
 		Read: dataSourceTencentCloudVpcRoutetablesRead,
 
 		Schema: map[string]*schema.Schema{
-			"routetable_id": {
+			"route_table_id": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Optional: true,
@@ -35,7 +35,7 @@ func dataSourceTencentCloudVpcRoutetables() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"routetable_id": {
+						"route_table_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -110,7 +110,7 @@ func dataSourceTencentCloudVpcRoutetablesRead(d *schema.ResourceData, meta inter
 		routetableId string = ""
 		name         string = ""
 	)
-	if temp, ok := d.GetOk("routetable_id"); ok {
+	if temp, ok := d.GetOk("route_table_id"); ok {
 		tempStr := temp.(string)
 		if tempStr != "" {
 			routetableId = tempStr
@@ -147,7 +147,7 @@ func dataSourceTencentCloudVpcRoutetablesRead(d *schema.ResourceData, meta inter
 
 		var infoMap = make(map[string]interface{})
 
-		infoMap["routetable_id"] = item.routetableId
+		infoMap["route_table_id"] = item.routetableId
 		infoMap["name"] = item.name
 		infoMap["vpc_id"] = item.vpcId
 		infoMap["is_default"] = item.isDefault

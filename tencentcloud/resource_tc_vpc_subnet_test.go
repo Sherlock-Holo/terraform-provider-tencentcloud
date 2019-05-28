@@ -54,7 +54,7 @@ func TestAccTencentCloudVpcSubnet_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "availability_zone"),
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "is_default"),
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "available_ip_count"),
-					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "routetable_id"),
+					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "route_table_id"),
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "create_time"),
 				),
 			},
@@ -72,7 +72,7 @@ func TestAccTencentCloudVpcSubnet_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "availability_zone"),
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "is_default"),
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "available_ip_count"),
-					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "routetable_id"),
+					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "route_table_id"),
 					resource.TestCheckResourceAttrSet("tencentcloud_subnet.subnet", "create_time"),
 				),
 			},
@@ -162,6 +162,6 @@ resource "tencentcloud_subnet" "subnet" {
   vpc_id = "${tencentcloud_vpc.foo.id}"
   cidr_block="10.0.20.0/28"
   is_multicast=true
-  routetable_id = "${tencentcloud_route_table.routetable.id}"
+  route_table_id = "${tencentcloud_route_table.routetable.id}"
 }
 `

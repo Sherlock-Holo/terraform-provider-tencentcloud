@@ -3,6 +3,7 @@ package tencentcloud
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"log"
 
@@ -583,7 +584,7 @@ getMoreData:
 			basicInfo.entryInfos = append(basicInfo.entryInfos, entry)
 		}
 		if hasTableMap[basicInfo.routetableId] {
-			errRet = fmt.Errorf("get repeated routetable_id[%s] when doing DescribeRouteTables", basicInfo.routetableId)
+			errRet = fmt.Errorf("get repeated route_table_id[%s] when doing DescribeRouteTables", basicInfo.routetableId)
 			return
 		}
 		hasTableMap[basicInfo.routetableId] = true
@@ -673,5 +674,111 @@ func (me *VpcService) ModifyRouteTableAttribute(ctx context.Context, routetableI
 	}
 
 	return
+}
 
+func (me *VpcService) GetRouteId(ctx context.Context,
+	routetableId, destinationCidrBlock, nextType, nextHub, description string) (entryId int64, errRet error) {
+
+	info, has, err := me.DescribeRouteTable(ctx, routetableId)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if has == 0 {
+		errRet = fmt.Errorf("not fonud the  route table of this  route entry")
+		return
+	}
+
+	if has != 1 {
+		errRet = fmt.Errorf("one routetable id get %d routetable infos", has)
+		return
+	}
+
+	for _, v := range info.entryInfos {
+
+		if v.destinationCidr == destinationCidrBlock && v.nextType == nextType && v.nextBub == nextHub {
+			entryId = v.routeEntryId
+			return
+		}
+	}
+	errRet = fmt.Errorf("not found  route entry id from route table [%s]", routetableId)
+	return
+
+}
+
+func (me *VpcService) DeleteRoutes(ctx context.Context, routetableId, destinationCidrBlock, nextType, nextHub string) (errRet error) {
+
+	logId := GetLogId(ctx)
+	request := vpc.NewDeleteRoutesRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	if routetableId == "" {
+		errRet = fmt.Errorf("DeleteRoutes can not invoke by empty routetableId.")
+		return
+	}
+
+	request.RouteTableId = &routetableId
+	var route vpc.Route
+	route.DestinationCidrBlock = &destinationCidrBlock
+	route.GatewayType = &nextType
+	route.GatewayId = &nextHub
+	request.Routes = []*vpc.Route{&route}
+	response, err := me.client.UseVpcClient().DeleteRoutes(request)
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+	}
+	return
+}
+
+func (me *VpcService) CreateRoutes(ctx context.Context,
+	routetableId, destinationCidrBlock, nextType, nextHub, description string) (entryId int64, errRet error) {
+
+	logId := GetLogId(ctx)
+	request := vpc.NewCreateRoutesRequest()
+	defer func() {
+		if errRet != nil {
+			log.Printf("[CRITAL]%s api[%s] fail, request body [%s], reason[%s]\n",
+				logId, request.GetAction(), request.ToJsonString(), errRet.Error())
+		}
+	}()
+
+	if routetableId == "" {
+		errRet = fmt.Errorf("CreateRoutes can not invoke by empty routetableId.")
+		return
+	}
+	request.RouteTableId = &routetableId
+	var route vpc.Route
+	route.DestinationCidrBlock = &destinationCidrBlock
+	route.RouteDescription = &description
+	route.GatewayType = &nextType
+	route.GatewayId = &nextHub
+	request.Routes = []*vpc.Route{&route}
+	response, err := me.client.UseVpcClient().CreateRoutes(request)
+	errRet = err
+	if err == nil {
+		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
+			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
+	} else {
+		return
+	}
+
+	entryId, errRet = me.GetRouteId(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
+
+	if errRet != nil {
+		time.Sleep(3 * time.Second)
+		entryId, errRet = me.GetRouteId(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
+	}
+
+	if errRet != nil {
+		time.Sleep(5 * time.Second)
+		entryId, errRet = me.GetRouteId(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
+	}
+	return
 }
