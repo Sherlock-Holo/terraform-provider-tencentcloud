@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -30,13 +31,13 @@ func resourceTencentCloudVpcInstance() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateCIDRNetworkAddress,
 			},
-
 			"dns_servers": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set: func(v interface{}) int {
+					return hashcode.String(v.(string))
 				},
 			},
 			"is_multicast": {
@@ -81,7 +82,7 @@ func resourceTencentCloudVpcInstanceCreate(d *schema.ResourceData, meta interfac
 	}
 	if temp, ok := d.GetOk("dns_servers"); ok {
 
-		slice := temp.([]interface{})
+		slice := temp.(*schema.Set).List()
 		dnsServers = make([]string, 0, len(slice))
 		for _, v := range slice {
 			dnsServers = append(dnsServers, v.(string))
@@ -120,12 +121,13 @@ func resourceTencentCloudVpcInstanceRead(d *schema.ResourceData, meta interface{
 	}
 	//deleted
 	if has == 0 {
+		log.Printf("[WARN]%s %s\n", logId, "vpc has been delete")
 		d.SetId("")
 		return nil
 	}
 	if has != 1 {
 		errRet := fmt.Errorf("one vpc_id read get %d vpc info", has)
-		log.Printf("[CRITAL]%s %s", logId, errRet.Error())
+		log.Printf("[CRITAL]%s %s\n", logId, errRet.Error())
 		return errRet
 	}
 	d.Set("name", info.name)
@@ -162,7 +164,7 @@ func resourceTencentCloudVpcInstanceUpdate(d *schema.ResourceData, meta interfac
 	old, now = d.GetChange("dns_servers")
 
 	if d.HasChange("dns_servers") {
-		slice = now.([]interface{})
+		slice = now.(*schema.Set).List()
 		if len(slice) < 1 {
 			return fmt.Errorf("If dns_servers is set, then len(dns_servers) should be [1:4]")
 		}

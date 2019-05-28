@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -66,7 +67,8 @@ func TestAccTencentCloudVpc_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet("tencentcloud_vpc.foo", "is_default"),
 					resource.TestCheckResourceAttrSet("tencentcloud_vpc.foo", "create_time"),
 					resource.TestCheckResourceAttrSet("tencentcloud_vpc.foo", "dns_servers.#"),
-					resource.TestCheckResourceAttr("tencentcloud_vpc.foo", "dns_servers.0", "119.29.29.29"),
+					resource.TestCheckResourceAttr("tencentcloud_vpc.foo", fmt.Sprintf("%s.%d", "dns_servers", hashcode.String("119.29.29.29")), "119.29.29.29"),
+					resource.TestCheckResourceAttr("tencentcloud_vpc.foo", fmt.Sprintf("%s.%d", "dns_servers", hashcode.String("8.8.8.8")), "8.8.8.8"),
 				),
 			},
 		},
@@ -129,7 +131,7 @@ const testAccVpcConfigUpdate = `
 resource "tencentcloud_vpc" "foo" {
     name = "ci-temp-test-updated"
     cidr_block = "10.0.0.0/16"
-	dns_servers=["119.29.29.29"]
+	dns_servers=["119.29.29.29","8.8.8.8"]
 	is_multicast=false
 }
 `
