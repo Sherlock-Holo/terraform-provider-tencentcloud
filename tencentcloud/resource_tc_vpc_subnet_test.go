@@ -153,15 +153,16 @@ resource "tencentcloud_vpc" "foo" {
 }
 
 resource "tencentcloud_route_table" "route_table" {
-   vpc_id = "${tencentcloud_vpc.foo.id}"
-   name = "ci-temp-test-rt"
+    vpc_id = "${tencentcloud_vpc.foo.id}"
+    name = "ci-temp-test-rt"
 }
+
 resource "tencentcloud_subnet" "subnet" {
-  availability_zone="${var.availability_zone}"
-  name = "ci-temp-test-subnet-updated"
-  vpc_id = "${tencentcloud_vpc.foo.id}"
-  cidr_block="10.0.20.0/28"
-  is_multicast=true
-  route_table_id = "${tencentcloud_route_table.route_table.id}"
+    availability_zone="${var.availability_zone}"
+    name = "ci-temp-test-subnet-updated"
+    vpc_id = "${tencentcloud_vpc.foo.id}"
+    cidr_block="10.0.20.0/28"
+    is_multicast=true
+    route_table_id = "${tencentcloud_route_table.route_table.id}"
 }
 `

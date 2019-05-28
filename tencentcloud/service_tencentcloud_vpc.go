@@ -679,6 +679,8 @@ func (me *VpcService) ModifyRouteTableAttribute(ctx context.Context, routeTableI
 func (me *VpcService) GetRouteId(ctx context.Context,
 	routeTableId, destinationCidrBlock, nextType, nextHub, description string) (entryId int64, errRet error) {
 
+	logId := GetLogId(ctx)
+
 	info, has, err := me.DescribeRouteTable(ctx, routeTableId)
 	if err != nil {
 		errRet = err
@@ -702,6 +704,19 @@ func (me *VpcService) GetRouteId(ctx context.Context,
 		}
 	}
 	errRet = fmt.Errorf("not found  route entry id from route table [%s]", routeTableId)
+
+	for _, v := range info.entryInfos {
+		log.Printf("%s[WARN] GetRouteId [%+v] vs [%+v],[%+v] vs [%+v],[%+v] vs [%+v]   %+v\n",
+			logId,
+			v.destinationCidr,
+			destinationCidrBlock,
+			v.nextType,
+			nextType,
+			v.nextBub,
+			nextHub,
+			v.destinationCidr == destinationCidrBlock && v.nextType == nextType && v.nextBub == nextHub)
+	}
+
 	return
 
 }
