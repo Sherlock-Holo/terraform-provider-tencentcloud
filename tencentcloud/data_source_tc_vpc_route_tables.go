@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func dataSourceTencentCloudVpcRoutetables() *schema.Resource {
+func dataSourceTencentCloudVpcRouteTables() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceTencentCloudVpcRoutetablesRead,
+		Read: dataSourceTencentCloudVpcRouteTablesRead,
 
 		Schema: map[string]*schema.Schema{
 			"route_table_id": {
@@ -96,24 +96,24 @@ func dataSourceTencentCloudVpcRoutetables() *schema.Resource {
 		},
 	}
 }
-func dataSourceTencentCloudVpcRoutetablesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceTencentCloudVpcRouteTablesRead(d *schema.ResourceData, meta interface{}) error {
 
 	logId := GetLogId(nil)
 
-	defer LogElapsed(logId + "data_source.tencentcloud_routetables.read")()
+	defer LogElapsed(logId + "data_source.tencentcloud_route_tables.read")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 
 	service := VpcService{client: meta.(*TencentCloudClient).apiV3Conn}
 
 	var (
-		routetableId string = ""
+		routeTableId string = ""
 		name         string = ""
 	)
 	if temp, ok := d.GetOk("route_table_id"); ok {
 		tempStr := temp.(string)
 		if tempStr != "" {
-			routetableId = tempStr
+			routeTableId = tempStr
 		}
 	}
 	if temp, ok := d.GetOk("name"); ok {
@@ -123,7 +123,7 @@ func dataSourceTencentCloudVpcRoutetablesRead(d *schema.ResourceData, meta inter
 		}
 	}
 
-	var infos, err = service.DescribeRouteTables(ctx, routetableId, name, "")
+	var infos, err = service.DescribeRouteTables(ctx, routeTableId, name, "")
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func dataSourceTencentCloudVpcRoutetablesRead(d *schema.ResourceData, meta inter
 		for _, v := range item.entryInfos {
 			routeEntryInfo := make(map[string]string)
 			routeEntryInfo["route_entry_id"] = fmt.Sprintf("%d.%s",
-				v.routeEntryId, item.routetableId)
+				v.routeEntryId, item.routeTableId)
 			routeEntryInfo["description"] = v.description
 			routeEntryInfo["destination_cidr_block"] = v.destinationCidr
 			routeEntryInfo["next_type"] = v.nextType
@@ -147,7 +147,7 @@ func dataSourceTencentCloudVpcRoutetablesRead(d *schema.ResourceData, meta inter
 
 		var infoMap = make(map[string]interface{})
 
-		infoMap["route_table_id"] = item.routetableId
+		infoMap["route_table_id"] = item.routeTableId
 		infoMap["name"] = item.name
 		infoMap["vpc_id"] = item.vpcId
 		infoMap["is_default"] = item.isDefault
@@ -159,11 +159,11 @@ func dataSourceTencentCloudVpcRoutetablesRead(d *schema.ResourceData, meta inter
 	}
 
 	if err := d.Set("instance_list", infoList); err != nil {
-		log.Printf("[CRITAL]%s provider set  routetable instances fail, reason:%s\n ", logId, err.Error())
+		log.Printf("[CRITAL]%s provider set  route table instances fail, reason:%s\n ", logId, err.Error())
 		return err
 	}
 
-	d.SetId("vpc_routetable" + routetableId + "_" + name)
+	d.SetId("vpc_route_table" + routeTableId + "_" + name)
 
 	if output, ok := d.GetOk("result_output_file"); ok && output.(string) != "" {
 		if err := writeToFile(output.(string), infoList); err != nil {

@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func resourceTencentCloudVpcRoutetable() *schema.Resource {
+func resourceTencentCloudVpcRouteTable() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceTencentCloudVpcRoutetableCreate,
-		Read:   resourceTencentCloudVpcRoutetableRead,
-		Update: resourceTencentCloudVpcRoutetableUpdate,
-		Delete: resourceTencentCloudVpcRoutetableDelete,
+		Create: resourceTencentCloudVpcRouteTableCreate,
+		Read:   resourceTencentCloudVpcRouteTableRead,
+		Update: resourceTencentCloudVpcRouteTableUpdate,
+		Delete: resourceTencentCloudVpcRouteTableDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -55,10 +55,10 @@ func resourceTencentCloudVpcRoutetable() *schema.Resource {
 	}
 }
 
-func resourceTencentCloudVpcRoutetableCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudVpcRouteTableCreate(d *schema.ResourceData, meta interface{}) error {
 
 	logId := GetLogId(nil)
-	defer LogElapsed(logId + "resource.tencentcloud_routetable.create")()
+	defer LogElapsed(logId + "resource.tencentcloud_route_table.create")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 	service := VpcService{client: meta.(*TencentCloudClient).apiV3Conn}
@@ -77,18 +77,18 @@ func resourceTencentCloudVpcRoutetableCreate(d *schema.ResourceData, meta interf
 		name = temp.(string)
 	}
 
-	routetableId, err := service.CreateRouteTable(ctx, name, vpcId)
+	routeTableId, err := service.CreateRouteTable(ctx, name, vpcId)
 	if err != nil {
 		return err
 	}
-	d.SetId(routetableId)
+	d.SetId(routeTableId)
 
-	return resourceTencentCloudVpcRoutetableRead(d, meta)
+	return resourceTencentCloudVpcRouteTableRead(d, meta)
 }
-func resourceTencentCloudVpcRoutetableRead(d *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudVpcRouteTableRead(d *schema.ResourceData, meta interface{}) error {
 
 	logId := GetLogId(nil)
-	defer LogElapsed(logId + "resource.tencentcloud_routetable.read")()
+	defer LogElapsed(logId + "resource.tencentcloud_route_table.read")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 
@@ -104,7 +104,7 @@ func resourceTencentCloudVpcRoutetableRead(d *schema.ResourceData, meta interfac
 		return nil
 	}
 	if has != 1 {
-		errRet := fmt.Errorf("one route_table_id read get %d routetable info", has)
+		errRet := fmt.Errorf("one route_table_id read get %d route_table info", has)
 		log.Printf("[CRITAL]%s %s", logId, errRet.Error())
 		return errRet
 	}
@@ -123,10 +123,10 @@ func resourceTencentCloudVpcRoutetableRead(d *schema.ResourceData, meta interfac
 	d.Set("create_time", info.createTime)
 	return nil
 }
-func resourceTencentCloudVpcRoutetableUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudVpcRouteTableUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	logId := GetLogId(nil)
-	defer LogElapsed(logId + "resource.tencentcloud_routetable.update")()
+	defer LogElapsed(logId + "resource.tencentcloud_route_table.update")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 
@@ -146,13 +146,13 @@ func resourceTencentCloudVpcRoutetableUpdate(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	return resourceTencentCloudVpcRoutetableRead(d, meta)
+	return resourceTencentCloudVpcRouteTableRead(d, meta)
 }
 
-func resourceTencentCloudVpcRoutetableDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceTencentCloudVpcRouteTableDelete(d *schema.ResourceData, meta interface{}) error {
 
 	logId := GetLogId(nil)
-	defer LogElapsed(logId + "resource.tencentcloud_routetable.delete")()
+	defer LogElapsed(logId + "resource.tencentcloud_route_table.delete")()
 
 	ctx := context.WithValue(context.TODO(), "logId", logId)
 

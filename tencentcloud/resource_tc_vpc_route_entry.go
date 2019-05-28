@@ -58,7 +58,7 @@ func resourceTencentCloudVpcRouteEntryCreate(d *schema.ResourceData, meta interf
 
 	var (
 		description          = ""
-		routetableId         = ""
+		routeTableId         = ""
 		destinationCidrBlock = ""
 		nextType             = ""
 		nextHub              = ""
@@ -68,7 +68,7 @@ func resourceTencentCloudVpcRouteEntryCreate(d *schema.ResourceData, meta interf
 		description = temp.(string)
 	}
 	if temp, ok := d.GetOk("route_table_id"); ok == true {
-		routetableId = temp.(string)
+		routeTableId = temp.(string)
 	}
 	if temp, ok := d.GetOk("destination_cidr_block"); ok == true {
 		destinationCidrBlock = temp.(string)
@@ -80,17 +80,17 @@ func resourceTencentCloudVpcRouteEntryCreate(d *schema.ResourceData, meta interf
 		nextHub = temp.(string)
 	}
 
-	if routetableId == "" || destinationCidrBlock == "" || nextType == "" || nextHub == "" {
+	if routeTableId == "" || destinationCidrBlock == "" || nextType == "" || nextHub == "" {
 		return fmt.Errorf("some needed fields is empty string")
 	}
 
-	entryId, err := service.CreateRoutes(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
+	entryId, err := service.CreateRoutes(ctx, routeTableId, destinationCidrBlock, nextType, nextHub, description)
 
 	if err != nil {
 		return err
 	}
 
-	d.SetId(fmt.Sprintf("%d.%s", entryId, routetableId))
+	d.SetId(fmt.Sprintf("%d.%s", entryId, routeTableId))
 
 	return nil
 }
@@ -122,7 +122,7 @@ func resourceTencentCloudVpcRouteEntryRead(d *schema.ResourceData, meta interfac
 	}
 
 	if has != 1 {
-		err = fmt.Errorf("one routetable id get %d routetable infos", has)
+		err = fmt.Errorf("one routeTable id get %d routeTable infos", has)
 		return nil
 	}
 	for _, v := range info.entryInfos {
@@ -154,11 +154,11 @@ func resourceTencentCloudVpcRouteEntryDelete(d *schema.ResourceData, meta interf
 	if len(items) != 2 {
 		return fmt.Errorf("entry id be destroyed, we can not get route table id")
 	}
-	routetableId := items[1]
+	routeTableId := items[1]
 
 	entryId, err := strconv.ParseUint(items[0], 10, 64)
 	if err != nil {
 		return fmt.Errorf("entry id be destroyed, we can not get route entry id")
 	}
-	return service.DeleteRoutes(ctx, routetableId, entryId)
+	return service.DeleteRoutes(ctx, routeTableId, entryId)
 }

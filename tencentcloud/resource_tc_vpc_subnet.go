@@ -116,7 +116,7 @@ func resourceTencentCloudVpcSubnetCreate(d *schema.ResourceData, meta interface{
 			return err
 		}
 		if has != 1 {
-			err = fmt.Errorf("error,routetable [%s]  not found in vpc [%s]", routeTableId, vpcId)
+			err = fmt.Errorf("error,route_table [%s]  not found in vpc [%s]", routeTableId, vpcId)
 			log.Printf("[CRITAL]%s %s", logId, err.Error())
 			return err
 		}
@@ -224,7 +224,7 @@ func resourceTencentCloudVpcSubnetUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 		if has != 1 {
-			err = fmt.Errorf("error,routetable [%s]  not found in vpc [%s]", routeTableId, d.Get("vpc_id").(string))
+			err = fmt.Errorf("error,route_table [%s]  not found in vpc [%s]", routeTableId, d.Get("vpc_id").(string))
 			log.Printf("[CRITAL]%s %s", logId, err.Error())
 			return err
 		}

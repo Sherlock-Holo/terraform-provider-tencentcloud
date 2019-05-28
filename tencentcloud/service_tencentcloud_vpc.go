@@ -48,7 +48,7 @@ type VpcRouteEntryBasicInfo struct {
 
 //route table basic information
 type VpcRouteTableBasicInfo struct {
-	routetableId string
+	routeTableId string
 	name         string
 	vpcId        string
 	isDefault    bool
@@ -482,9 +482,9 @@ func (me *VpcService) IsRouteTableInVpc(ctx context.Context, routeTableId, vpcId
 
 }
 
-func (me *VpcService) DescribeRouteTable(ctx context.Context, routetableId string) (info VpcRouteTableBasicInfo, has int, errRet error) {
+func (me *VpcService) DescribeRouteTable(ctx context.Context, routeTableId string) (info VpcRouteTableBasicInfo, has int, errRet error) {
 
-	infos, err := me.DescribeRouteTables(ctx, routetableId, "", "")
+	infos, err := me.DescribeRouteTables(ctx, routeTableId, "", "")
 	if err != nil {
 		errRet = err
 		return
@@ -498,7 +498,7 @@ func (me *VpcService) DescribeRouteTable(ctx context.Context, routetableId strin
 	info = infos[0]
 	return
 }
-func (me *VpcService) DescribeRouteTables(ctx context.Context, routetableId, routeTableName, vpcId string) (infos []VpcRouteTableBasicInfo, errRet error) {
+func (me *VpcService) DescribeRouteTables(ctx context.Context, routeTableId, routeTableName, vpcId string) (infos []VpcRouteTableBasicInfo, errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewDescribeRouteTablesRequest()
@@ -516,8 +516,8 @@ func (me *VpcService) DescribeRouteTables(ctx context.Context, routetableId, rou
 	var hasTableMap = map[string]bool{}
 
 	var filters []*vpc.Filter
-	if routetableId != "" {
-		filters = me.fillFilter(filters, "route-table-id", routetableId)
+	if routeTableId != "" {
+		filters = me.fillFilter(filters, "route-table-id", routeTableId)
 	}
 	if vpcId != "" {
 		filters = me.fillFilter(filters, "vpc-id", vpcId)
@@ -563,7 +563,7 @@ getMoreData:
 		basicInfo.createTime = *item.CreatedTime
 		basicInfo.isDefault = *item.Main
 		basicInfo.name = *item.RouteTableName
-		basicInfo.routetableId = *item.RouteTableId
+		basicInfo.routeTableId = *item.RouteTableId
 		basicInfo.vpcId = *item.VpcId
 
 		basicInfo.subnetIds = make([]string, 0, len(item.AssociationSet))
@@ -583,18 +583,18 @@ getMoreData:
 			entry.entryType = *v.RouteType
 			basicInfo.entryInfos = append(basicInfo.entryInfos, entry)
 		}
-		if hasTableMap[basicInfo.routetableId] {
-			errRet = fmt.Errorf("get repeated route_table_id[%s] when doing DescribeRouteTables", basicInfo.routetableId)
+		if hasTableMap[basicInfo.routeTableId] {
+			errRet = fmt.Errorf("get repeated route_table_id[%s] when doing DescribeRouteTables", basicInfo.routeTableId)
 			return
 		}
-		hasTableMap[basicInfo.routetableId] = true
+		hasTableMap[basicInfo.routeTableId] = true
 		infos = append(infos, basicInfo)
 	}
 	goto getMoreData
 
 }
 
-func (me *VpcService) CreateRouteTable(ctx context.Context, name, vpcId string) (routetableId string, errRet error) {
+func (me *VpcService) CreateRouteTable(ctx context.Context, name, vpcId string) (routeTableId string, errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewCreateRouteTableRequest()
@@ -618,12 +618,12 @@ func (me *VpcService) CreateRouteTable(ctx context.Context, name, vpcId string) 
 		log.Printf("[DEBUG]%s api[%s] , request body [%s], response body[%s]\n",
 			logId, request.GetAction(), request.ToJsonString(), response.ToJsonString())
 
-		routetableId = *response.Response.RouteTable.RouteTableId
+		routeTableId = *response.Response.RouteTable.RouteTableId
 	}
 	return
 }
 
-func (me *VpcService) DeleteRouteTable(ctx context.Context, routetableId string) (errRet error) {
+func (me *VpcService) DeleteRouteTable(ctx context.Context, routeTableId string) (errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewDeleteRouteTableRequest()
@@ -634,11 +634,11 @@ func (me *VpcService) DeleteRouteTable(ctx context.Context, routetableId string)
 		}
 	}()
 
-	if routetableId == "" {
-		errRet = fmt.Errorf("DeleteRouteTable can not invoke by empty routetableId.")
+	if routeTableId == "" {
+		errRet = fmt.Errorf("DeleteRouteTable can not invoke by empty routeTableId.")
 		return
 	}
-	request.RouteTableId = &routetableId
+	request.RouteTableId = &routeTableId
 	response, err := me.client.UseVpcClient().DeleteRouteTable(request)
 	errRet = err
 	if err == nil {
@@ -649,7 +649,7 @@ func (me *VpcService) DeleteRouteTable(ctx context.Context, routetableId string)
 	return
 }
 
-func (me *VpcService) ModifyRouteTableAttribute(ctx context.Context, routetableId string, name string) (errRet error) {
+func (me *VpcService) ModifyRouteTableAttribute(ctx context.Context, routeTableId string, name string) (errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewModifyRouteTableAttributeRequest()
@@ -660,11 +660,11 @@ func (me *VpcService) ModifyRouteTableAttribute(ctx context.Context, routetableI
 		}
 	}()
 
-	if routetableId == "" {
-		errRet = fmt.Errorf("ModifyRouteTableAttribute can not invoke by empty routetableId.")
+	if routeTableId == "" {
+		errRet = fmt.Errorf("ModifyRouteTableAttribute can not invoke by empty routeTableId.")
 		return
 	}
-	request.RouteTableId = &routetableId
+	request.RouteTableId = &routeTableId
 	request.RouteTableName = &name
 	response, err := me.client.UseVpcClient().ModifyRouteTableAttribute(request)
 	errRet = err
@@ -677,9 +677,9 @@ func (me *VpcService) ModifyRouteTableAttribute(ctx context.Context, routetableI
 }
 
 func (me *VpcService) GetRouteId(ctx context.Context,
-	routetableId, destinationCidrBlock, nextType, nextHub, description string) (entryId int64, errRet error) {
+	routeTableId, destinationCidrBlock, nextType, nextHub, description string) (entryId int64, errRet error) {
 
-	info, has, err := me.DescribeRouteTable(ctx, routetableId)
+	info, has, err := me.DescribeRouteTable(ctx, routeTableId)
 	if err != nil {
 		errRet = err
 		return
@@ -690,7 +690,7 @@ func (me *VpcService) GetRouteId(ctx context.Context,
 	}
 
 	if has != 1 {
-		errRet = fmt.Errorf("one routetable id get %d routetable infos", has)
+		errRet = fmt.Errorf("one routeTableId id get %d routeTableId infos", has)
 		return
 	}
 
@@ -701,12 +701,12 @@ func (me *VpcService) GetRouteId(ctx context.Context,
 			return
 		}
 	}
-	errRet = fmt.Errorf("not found  route entry id from route table [%s]", routetableId)
+	errRet = fmt.Errorf("not found  route entry id from route table [%s]", routeTableId)
 	return
 
 }
 
-func (me *VpcService) DeleteRoutes(ctx context.Context, routetableId string, entryId uint64) (errRet error) {
+func (me *VpcService) DeleteRoutes(ctx context.Context, routeTableId string, entryId uint64) (errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewDeleteRoutesRequest()
@@ -717,12 +717,12 @@ func (me *VpcService) DeleteRoutes(ctx context.Context, routetableId string, ent
 		}
 	}()
 
-	if routetableId == "" {
-		errRet = fmt.Errorf("DeleteRoutes can not invoke by empty routetableId.")
+	if routeTableId == "" {
+		errRet = fmt.Errorf("DeleteRoutes can not invoke by empty routeTableId.")
 		return
 	}
 
-	request.RouteTableId = &routetableId
+	request.RouteTableId = &routeTableId
 	var route vpc.Route
 	route.RouteId = &entryId
 	request.Routes = []*vpc.Route{&route}
@@ -736,7 +736,7 @@ func (me *VpcService) DeleteRoutes(ctx context.Context, routetableId string, ent
 }
 
 func (me *VpcService) CreateRoutes(ctx context.Context,
-	routetableId, destinationCidrBlock, nextType, nextHub, description string) (entryId int64, errRet error) {
+	routeTableId, destinationCidrBlock, nextType, nextHub, description string) (entryId int64, errRet error) {
 
 	logId := GetLogId(ctx)
 	request := vpc.NewCreateRoutesRequest()
@@ -747,11 +747,11 @@ func (me *VpcService) CreateRoutes(ctx context.Context,
 		}
 	}()
 
-	if routetableId == "" {
-		errRet = fmt.Errorf("CreateRoutes can not invoke by empty routetableId.")
+	if routeTableId == "" {
+		errRet = fmt.Errorf("CreateRoutes can not invoke by empty routeTableId.")
 		return
 	}
-	request.RouteTableId = &routetableId
+	request.RouteTableId = &routeTableId
 	var route vpc.Route
 	route.DestinationCidrBlock = &destinationCidrBlock
 	route.RouteDescription = &description
@@ -767,16 +767,16 @@ func (me *VpcService) CreateRoutes(ctx context.Context,
 		return
 	}
 
-	entryId, errRet = me.GetRouteId(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
+	entryId, errRet = me.GetRouteId(ctx, routeTableId, destinationCidrBlock, nextType, nextHub, description)
 
 	if errRet != nil {
 		time.Sleep(3 * time.Second)
-		entryId, errRet = me.GetRouteId(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
+		entryId, errRet = me.GetRouteId(ctx, routeTableId, destinationCidrBlock, nextType, nextHub, description)
 	}
 
 	if errRet != nil {
 		time.Sleep(5 * time.Second)
-		entryId, errRet = me.GetRouteId(ctx, routetableId, destinationCidrBlock, nextType, nextHub, description)
+		entryId, errRet = me.GetRouteId(ctx, routeTableId, destinationCidrBlock, nextType, nextHub, description)
 	}
 	return
 }

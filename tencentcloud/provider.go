@@ -145,7 +145,7 @@ func Provider() *schema.Provider {
 			"tencentcloud_redis_instances":             dataSourceTencentRedisInstances(),
 			"tencentcloud_vpc_instances":               dataSourceTencentCloudVpcInstances(),
 			"tencentcloud_vpc_subnets":                 dataSourceTencentCloudVpcSubnets(),
-			"tencentcloud_vpc_routetables":             dataSourceTencentCloudVpcRoutetables(),
+			"tencentcloud_vpc_route_tables":            dataSourceTencentCloudVpcRouteTables(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -163,7 +163,7 @@ func Provider() *schema.Provider {
 			"tencentcloud_lb":                         resourceTencentCloudLB(),
 			"tencentcloud_nat_gateway":                resourceTencentCloudNatGateway(),
 			"tencentcloud_route_entry":                resourceTencentCloudVpcRouteEntry(),
-			"tencentcloud_route_table":                resourceTencentCloudVpcRoutetable(),
+			"tencentcloud_route_table":                resourceTencentCloudVpcRouteTable(),
 			"tencentcloud_subnet":                     resourceTencentCloudVpcSubnet(),
 			"tencentcloud_vpc":                        resourceTencentCloudVpcInstance(),
 			"tencentcloud_security_group":             resourceTencentCloudSecurityGroup(),

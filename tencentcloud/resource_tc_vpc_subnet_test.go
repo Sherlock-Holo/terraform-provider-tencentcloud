@@ -152,7 +152,7 @@ resource "tencentcloud_vpc" "foo" {
     cidr_block="10.0.0.0/16"
 }
 
-resource "tencentcloud_route_table" "routetable" {
+resource "tencentcloud_route_table" "route_table" {
    vpc_id = "${tencentcloud_vpc.foo.id}"
    name = "ci-temp-test-rt"
 }
@@ -162,6 +162,6 @@ resource "tencentcloud_subnet" "subnet" {
   vpc_id = "${tencentcloud_vpc.foo.id}"
   cidr_block="10.0.20.0/28"
   is_multicast=true
-  route_table_id = "${tencentcloud_route_table.routetable.id}"
+  route_table_id = "${tencentcloud_route_table.route_table.id}"
 }
 `
