@@ -81,13 +81,6 @@ func dataSourceTencentCloudVpcInstances() *schema.Resource {
 
 func dataSourceTencentCloudVpcInstancesRead(d *schema.ResourceData, meta interface{}) error {
 
-	log.Println("dddddddddddddddddddddddddddddddd")
-	log.Println("[TRACE]dddddddddddddddddddddddddddddddd")
-	log.Println("[DEBUG]dddddddddddddddddddddddddddddddd")
-	log.Println("[INFO]dddddddddddddddddddddddddddddddd")
-	log.Println("[WARN]dddddddddddddddddddddddddddddddd")
-	log.Println("[ERROR]dddddddddddddddddddddddddddddddd")
-
 	logId := GetLogId(nil)
 
 	defer LogElapsed(logId + "data_source.tencentcloud_vpc_instances.read")()
