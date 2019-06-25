@@ -119,7 +119,7 @@ func testAccCheckVpcRouteEntryDestroy(s *terraform.State) error {
 
 const testAccVpcRouteEntryConfig = `
 variable "availability_zone" {
-  default = "ap-guangzhou-3"
+  default = "na-siliconvalley-1"
 }
 
 resource "tencentcloud_vpc" "foo" {

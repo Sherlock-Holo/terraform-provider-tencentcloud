@@ -3,7 +3,6 @@ package tencentcloud
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"log"
 
@@ -782,16 +781,22 @@ func (me *VpcService) CreateRoutes(ctx context.Context,
 		return
 	}
 
-	entryId, errRet = me.GetRouteId(ctx, routeTableId, destinationCidrBlock, nextType, nextHub, description)
-
-	if errRet != nil {
-		time.Sleep(3 * time.Second)
-		entryId, errRet = me.GetRouteId(ctx, routeTableId, destinationCidrBlock, nextType, nextHub, description)
+	if *(response.Response.TotalCount) != 1 {
+		errRet = fmt.Errorf("CreateRoutes  return %d routeTable . but we only request 1.", *response.Response.TotalCount)
+		return
 	}
 
-	if errRet != nil {
-		time.Sleep(5 * time.Second)
-		entryId, errRet = me.GetRouteId(ctx, routeTableId, destinationCidrBlock, nextType, nextHub, description)
+	if len(response.Response.RouteTableSet) != 1 {
+		errRet = fmt.Errorf("CreateRoutes  return %d routeTable  info . but we only request 1.", len(response.Response.RouteTableSet))
+		return
 	}
+
+	if len(response.Response.RouteTableSet[0].RouteSet) != 1 {
+		errRet = fmt.Errorf("CreateRoutes  return %d routeTableSet  info . but we only create 1.", len(response.Response.RouteTableSet[0].RouteSet))
+		return
+	}
+
+	entryId = int64(*response.Response.RouteTableSet[0].RouteSet[0].RouteId)
+
 	return
 }
