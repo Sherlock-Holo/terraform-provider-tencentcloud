@@ -42,6 +42,9 @@ Data Sources
   tencentcloud_as_scaling_configs
   tencentcloud_as_scaling_groups
   tencentcloud_as_scaling_policies
+  tencentcloud_vpc_instances
+  tencentcloud_vpc_subnets
+  tencentcloud_vpc_route_tables
 
 CBS Resources
   tencentcloud_cbs_storage
@@ -69,6 +72,7 @@ VPC Resources
   tencentcloud_security_group_rule
   tencentcloud_route_table
   tencentcloud_route_entry
+  tencentcloud_route_table_entry
   tencentcloud_dnat
   tencentcloud_nat_gateway
 

@@ -1,3 +1,31 @@
+/*
+Use this data source to query vpc route tables information.
+
+Example Usage
+
+```hcl
+variable "availability_zone" {
+	default = "ap-guangzhou-3"
+}
+
+resource "tencentcloud_vpc" "foo" {
+    name="guagua-ci-temp-test"
+    cidr_block="10.0.0.0/16"
+}
+
+resource "tencentcloud_route_table" "route_table" {
+   vpc_id = "${tencentcloud_vpc.foo.id}"
+   name = "ci-temp-test-rt"
+}
+
+data "tencentcloud_vpc_route_tables" "id_instances" {
+	route_table_id="${tencentcloud_route_table.route_table.id}"
+}
+data "tencentcloud_vpc_route_tables" "name_instances" {
+	name="${tencentcloud_route_table.route_table.name}"
+}
+```
+*/
 package tencentcloud
 
 import (
@@ -14,14 +42,16 @@ func dataSourceTencentCloudVpcRouteTables() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"route_table_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: "ID of the routing table to be queried.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: "Name of the routing table to be queried.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
@@ -32,20 +62,24 @@ func dataSourceTencentCloudVpcRouteTables() *schema.Resource {
 
 			// Computed values
 			"instance_list": {Type: schema.TypeList,
-				Computed: true,
+				Computed:    true,
+				Description: "The information list of the VPC.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"route_table_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "ID of the routing table.",
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Name of the routing table.",
 						},
 						"vpc_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "ID of the VPC.",
 						},
 						"subnet_ids": {
 							Type:     schema.TypeList,
@@ -53,39 +87,48 @@ func dataSourceTencentCloudVpcRouteTables() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "List of subnet IDs bound to the route table.",
 						},
 						"is_default": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether it is the default routing table.",
 						},
 						"create_time": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Creation time of the routing table.",
 						},
 						"route_entry_infos": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Detailed information of each entry of the route table.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"route_entry_id": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "ID of a route table entry.",
 									},
 									"description": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Description information user defined for a route table rule.",
 									},
 									"destination_cidr_block": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The destination address block.",
 									},
 									"next_type": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Type of next-hop, and available values include CVM, VPN, DIRECTCONNECT, PEERCONNECTION, SSLVPN, NAT, NORMAL_CVM, EIP and CCN.",
 									},
 									"next_hub": {
-										Type:     schema.TypeString,
-										Computed: true,
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "ID of next-hop gateway. Note: when 'next_type' is EIP, GatewayId will fix the value '0'.",
 									},
 								},
 							},

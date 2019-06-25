@@ -1,3 +1,40 @@
+/*
+Provides a resource to create an entry of a routing table.
+
+Example Usage
+
+```hcl
+variable "availability_zone" {
+  default = "na-siliconvalley-1"
+}
+
+resource "tencentcloud_vpc" "foo" {
+  name = "ci-temp-test"
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "tencentcloud_subnet" "foo" {
+  vpc_id            = "${tencentcloud_vpc.foo.id}"
+  name              = "terraform test subnet"
+  cidr_block        = "10.0.12.0/24"
+  availability_zone = "${var.availability_zone}"
+  route_table_id = "${tencentcloud_route_table.foo.id}"
+}
+
+resource "tencentcloud_route_table" "foo" {
+  vpc_id = "${tencentcloud_vpc.foo.id}"
+  name = "ci-temp-test-rt"
+}
+
+resource "tencentcloud_route_table_entry" "instance" {
+  route_table_id = "${tencentcloud_route_table.foo.id}"
+  destination_cidr_block     = "10.4.4.0/24"
+  next_type      = "EIP"
+  next_hub       = "0"
+  description    = "ci-test-route-table-entry"
+}
+```
+*/
 package tencentcloud
 
 import (
@@ -20,31 +57,36 @@ func resourceTencentCloudVpcRouteEntry() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"route_table_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "ID of routing table to which this entry belongs.",
 			},
 			"destination_cidr_block": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateCIDRNetworkAddress,
+				Description:  "Destination address block.",
 			},
 			"next_type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateAllowedStringValue(ALL_GATE_WAY_TYPES),
+				Description:  "Type of next-hop, and available values include CVM, VPN, DIRECTCONNECT, PEERCONNECTION, SSLVPN, NAT, NORMAL_CVM, EIP and CCN.",
 			},
 			"next_hub": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "ID of next-hop gateway. Note: when 'next_type' is EIP, GatewayId should be '0'.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Description of the routing table entry.",
 			},
 		},
 	}

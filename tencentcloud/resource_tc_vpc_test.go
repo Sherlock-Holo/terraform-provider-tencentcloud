@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTencentCloudVpc_basic(t *testing.T) {
+func TestAccTencentCloudVpcV3_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -35,7 +35,7 @@ func TestAccTencentCloudVpc_basic(t *testing.T) {
 	})
 }
 
-func TestAccTencentCloudVpc_update(t *testing.T) {
+func TestAccTencentCloudVpcV3_update(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

@@ -1,3 +1,23 @@
+/*
+Use this data source to query vpc instances' information.
+
+Example Usage
+
+```hcl
+resource "tencentcloud_vpc" "foo" {
+    name="guagua_vpc_instance_test"
+    cidr_block="10.0.0.0/16"
+}
+
+data "tencentcloud_vpc_instances" "id_instances" {
+	vpc_id="${tencentcloud_vpc.foo.id}"
+}
+
+data "tencentcloud_vpc_instances" "name_instances" {
+	name="${tencentcloud_vpc.foo.name}"
+}
+```
+*/
 package tencentcloud
 
 import (
@@ -13,14 +33,16 @@ func dataSourceTencentCloudVpcInstances() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"vpc_id": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: "ID of the VPC to be queried.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: "Name of the VPC to be queried.",
 			},
 			"result_output_file": {
 				Type:        schema.TypeString,
@@ -31,28 +53,34 @@ func dataSourceTencentCloudVpcInstances() *schema.Resource {
 
 			// Computed values
 			"instance_list": {Type: schema.TypeList,
-				Computed: true,
+				Computed:    true,
+				Description: "The information list of the VPC.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"vpc_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "ID of the VPC.",
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Name of the VPC.",
 						},
 						"cidr_block": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A network address block of a VPC CIDR.",
 						},
 						"is_default": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether it is the default VPC for this region.",
 						},
 						"is_multicast": {
-							Type:     schema.TypeBool,
-							Computed: true,
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether VPC multicast is enabled.",
 						},
 						"dns_servers": {
 							Type:     schema.TypeList,
@@ -60,6 +88,7 @@ func dataSourceTencentCloudVpcInstances() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "A list of DNS servers which can be used within the VPC.",
 						},
 						"subnet_ids": {
 							Type:     schema.TypeList,
@@ -67,10 +96,12 @@ func dataSourceTencentCloudVpcInstances() *schema.Resource {
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+							Description: "A ID list of subnets within this VPC.",
 						},
 						"create_time": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Creation time of VPC.",
 						},
 					},
 				},

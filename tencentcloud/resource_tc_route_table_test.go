@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTencentCloudVpcRouteTable_basic(t *testing.T) {
+func TestAccTencentCloudVpcV3RouteTable_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -37,7 +37,7 @@ func TestAccTencentCloudVpcRouteTable_basic(t *testing.T) {
 	})
 }
 
-func TestAccTencentCloudVpcRouteTable_update(t *testing.T) {
+func TestAccTencentCloudVpcV3RouteTable_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

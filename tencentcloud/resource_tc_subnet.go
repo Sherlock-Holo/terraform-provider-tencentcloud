@@ -1,3 +1,34 @@
+/*
+Provide a resource to create a VPC subnet.
+
+Example Usage
+
+```hcl
+variable "availability_zone" {
+	default = "ap-guangzhou-3"
+}
+
+resource "tencentcloud_vpc" "foo" {
+    name="guagua-ci-temp-test"
+    cidr_block="10.0.0.0/16"
+}
+resource "tencentcloud_subnet" "subnet" {
+	availability_zone="${var.availability_zone}"
+	name="guagua-ci-temp-test"
+	vpc_id="${tencentcloud_vpc.foo.id}"
+	cidr_block="10.0.20.0/28"
+	is_multicast=false
+}
+```
+
+Import
+
+Vpc subnet instance can be imported, e.g.
+
+```hcl
+$ terraform import tencentcloud_subnet.test subnet_id
+```
+*/
 package tencentcloud
 
 import (
@@ -23,48 +54,57 @@ func resourceTencentCloudVpcSubnet() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "ID of the VPC to be associated.",
 			},
 			"availability_zone": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The availability zone within which the subnet should be created.",
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateStringLengthInRange(1, 60),
+				Description:  "The name of subnet to be created.",
 			},
 			"cidr_block": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateCIDRNetworkAddress,
+				Description:  "A network address block of the subnet.",
 			},
 			"is_multicast": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Indicates whether multicast is enabled. The default value is 'true'.",
 			},
 			"route_table_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "ID of a routing table to which the subnet should be associated.",
 			},
 			// Computed values
 			"is_default": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether it is the default VPC for this region.",
 			},
 			"available_ip_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The number of available IPs.",
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Creation time of subnet resource.",
 			},
 		},
 	}

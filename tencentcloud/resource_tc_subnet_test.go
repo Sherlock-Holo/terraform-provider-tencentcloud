@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTencentCloudVpcSubnet_basic(t *testing.T) {
+func TestAccTencentCloudVpcV3Subnet_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -34,7 +34,7 @@ func TestAccTencentCloudVpcSubnet_basic(t *testing.T) {
 	})
 }
 
-func TestAccTencentCloudVpcSubnet_update(t *testing.T) {
+func TestAccTencentCloudVpcV3Subnet_update(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

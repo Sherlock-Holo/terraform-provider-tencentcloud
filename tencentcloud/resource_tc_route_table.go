@@ -1,3 +1,28 @@
+/*
+Provides a resource to create a VPC routing table.
+
+Example Usage
+
+```hcl
+resource "tencentcloud_vpc" "foo" {
+    name = "ci-temp-test"
+    cidr_block = "10.0.0.0/16"
+}
+
+resource "tencentcloud_route_table" "foo" {
+   vpc_id = "${tencentcloud_vpc.foo.id}"
+   name = "ci-temp-test-rt"
+}
+```
+
+Import
+
+Vpc routetable instance can be imported, e.g.
+
+```hcl
+$ terraform import tencentcloud_route_table.test route_table_id
+```
+*/
 package tencentcloud
 
 import (
@@ -22,14 +47,16 @@ func resourceTencentCloudVpcRouteTable() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "ID of VPC to which the route table should be associated.",
 			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateStringLengthInRange(1, 60),
+				Description:  "The name of routing table.",
 			},
 			// Computed values
 			"subnet_ids": {
@@ -38,6 +65,7 @@ func resourceTencentCloudVpcRouteTable() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: "ID list of the subnets associated with this route table.",
 			},
 			"route_entry_ids": {
 				Type:     schema.TypeList,
@@ -45,14 +73,17 @@ func resourceTencentCloudVpcRouteTable() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Description: "ID list of the routing entries.",
 			},
 			"is_default": {
-				Type:     schema.TypeBool,
-				Computed: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether it is the default routing table.",
 			},
 			"create_time": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Creation time of the routing table.",
 			},
 		},
 	}
